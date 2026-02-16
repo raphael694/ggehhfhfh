@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIATOR - HEURE D'ENTRÉE</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Mono&display=swap" rel="stylesheet">
+    
+<style>
+        :root {
+    --red: #ff0000; 
+    --bg: #000000; 
+    --card-bg: #0a0a0a;
+    --accent: #ffff00;
+        }
+        
+        body { 
+            background: var(--bg); 
+            color: white; 
+            font-family: 'Space Mono', monospace; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            padding: 20px; 
+            margin: 0; 
+            min-height: 100vh;
+        }
+
+        .card { 
+            width: 100%; 
+            max-width: 380px; 
+            background: var(--card-bg); 
+            border: 1px solid #222; 
+            border-radius: 24px; 
+            padding: 25px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9); 
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--red), transparent);
+        }
+
+        h2 { 
+            text-align: center; 
+            color: var(--red); 
+            font-family: 'Audiowide', cursive;
+            font-size: 14px; 
+            letter-spacing: 3px; 
+            text-transform: uppercase; 
+            margin-bottom: 30px; 
+            font-weight: 900;
+        }
+
+        .input-group { margin-bottom: 18px; }
+
+        label { 
+            display: block; 
+            font-size: 10px; 
+            color: #777; 
+            margin-bottom: 8px; 
+            text-transform: uppercase; 
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 1px;
+        }
+
+        input { 
+            width: 100%; 
+            background: #000; 
+            border: 1px solid #252525; 
+            color: #fff; 
+            padding: 14px; 
+            border-radius: 12px; 
+            box-sizing: border-box; 
+            text-align: center; 
+            font-family: 'Space Mono', monospace; 
+            font-size: 16px; 
+            outline: none; 
+            transition: 0.3s ease; 
+        }
+
+        input:focus { 
+            border-color: var(--red); 
+            box-shadow: 0 0 15px rgba(255, 0, 68, 0.15);
+            background: #080808;
+        }
+
+        .hash-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 12px; 
+            margin-bottom: 20px;
+        }
+
+        button { 
+            width: 100%; 
+            padding: 18px; 
+            background: var(--red); 
+            color: #fff; 
+            border: none; 
+            border-radius: 14px; 
+            font-family: 'Space Mono', monospace;
+            font-weight: 800; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            transition: transform 0.2s, background 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 0, 68, 0.3);
+        }
+
+        button:active { transform: scale(0.97); }
+
+        .res-box { 
+            margin-top: 25px; 
+            background: linear-gradient(145deg, #000, #0a0a0a); 
+            padding: 20px; 
+            border-radius: 20px; 
+            text-align: center; 
+            border: 1px solid #1a1a1a; 
+            display: none; 
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .res-time { 
+            font-family: 'Audiowide', cursive;
+            font-size: 40px; 
+            font-weight: 900; 
+            color: var(--accent); 
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.4); 
+            margin: 5px 0;
+        }
+
+        .info-note {
+            font-size: 9px; 
+            color: #444; 
+            text-transform: uppercase; 
+            margin-top: 10px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .history-section {
+            width: 100%;
+            max-width: 380px;
+            margin-top: 25px;
+        }
+
+        .history-title {
+            font-size: 11px;
+            color: #555;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .history-title::after { content: ''; flex: 1; height: 1px; background: #222; }
+
+        .history-list { list-style: none; padding: 0; margin: 0; }
+
+        .history-item {
+            background: #111;
+            margin-bottom: 8px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid var(--red);
+            font-size: 14px;
+            font-family: 'Space Mono', monospace;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } }
+
+        .hist-ref { color: #666; font-size: 11px; }
+        .hist-time { color: var(--accent); font-family: 'Space Mono', monospace; }
+
+    </style>
+</head>
+<body>
+
+<!-- PROTECTION ANTI-INSPECTEUR + ANTI-DEBUG ⚔️ -->
+<script>
+    // === 1. ANTI-CLICK DROIT === [citation:2]
+    document.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        return false;
+    });
+
+    // === 2. ANTI-SHORTCUTS (F12, Ctrl+Shift+I, Ctrl+U, sns) === [citation:2]
+    document.addEventListener('keydown', (e) => {
+        // F12
+        if (e.key === 'F12' || e.keyCode === 123) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+Shift+I (Inspect)
+        if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+Shift+J (Console)
+        if (e.ctrlKey && e.shiftKey && e.key === 'J') {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+U (View Source)
+        if (e.ctrlKey && e.key === 'u') {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+Shift+C (Inspect Element)
+        if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // === 3. ANTI-DEBUG (debugger spam) === [citation:4]
+    (function antiDebug() {
+        setInterval(() => {
+            debugger;
+        }, 50);
+        try {
+            antiDebug();
+        } catch(err) {}
+    })();
+
+    // === 4. DETECTER DEVTOOLS (fotoana lava be raha misokatra) === [citation:2]
+    let startTime = performance.now();
+    let element = new Image();
+    Object.defineProperty(element, 'id', {
+        get: function() {
+            let endTime = performance.now();
+            if (endTime - startTime > 100) {
+                // DevTools detected! Redirect or clear page
+                document.body.innerHTML = '<h1 style="color:red;text-align:center;margin-top:50px;">⛔ ACCÈS INTERDIT ⛔</h1>';
+            }
+        }
+    });
+    console.log(element);
+
+    // === 5. DETECTER RESIZE (raha misokatra DevTools mivalopy) === [citation:2]
+    let windowWidth = window.innerWidth;
+    window.addEventListener('resize', () => {
+        if (window.innerWidth !== windowWidth) {
+            // DevTools détecté ! On recharge
+            window.location.reload();
+        }
+    });
+
+    // === 6. MANAKANA "VIEW SOURCE" amin'ny alalan'ny about:blank === [citation:10]
+    if (window.location.protocol === 'view-source:') {
+        window.location.href = 'about:blank';
+    }
+
+    // === 7. OBFUSCATION NATURELLE (ampiasaina ao amin'ny calcul) ===
+    // Ny calcul dia hatao amin'ny anarana fohy sy tsy mazava
+</script>
+
+<div class="card">
+    <h2>🚀 AVIATOR - HEURE D'ENTRÉE</h2>
+
+    <div class="input-group">
+        <label>Heure de Référence (HH:MM:SS)</label>
+        <input type="text" id="tIn" placeholder="00:00:00">
+    </div>
+
+    <div class="hash-grid">
+        <div>
+            <label>1er Hex</label>
+            <input type="text" id="h1" maxlength="1" placeholder="0-F">
+        </div>
+        <div>
+            <label>Dernier Déc.</label>
+            <input type="text" id="dL" maxlength="1" placeholder="0-9">
+        </div>
+        <div>
+            <label>Tail Hex</label>
+            <input type="text" id="hT" maxlength="2" placeholder="00-FF">
+        </div>
+    </div>
+
+    <button onclick="_0x4f5e()">Calculer Heure d'Entrée</button>
+
+    <div class="res-box" id="resBox">
+        <div style="font-size: 10px; color: #888; letter-spacing: 1px;">HEURE D'ENTRÉE</div>
+        <div class="res-time" id="fTime">00:00:00</div>
+        <div class="info-note">Moment recommandé pour entrer</div>
+    </div>
+</div>
+
+<div class="history-section">
+    <div class="history-title">Historique des 10 dernières entrées</div>
+    <div id="historyList" class="history-list"></div>
+    
+    <!-- BOUTON ASTUCES -->
+    <div style="margin-top: 20px; text-align: center;">
+        <button onclick="_0x2a3b()" style="background: #333; color: #ff0; padding: 12px 25px; border: none; border-radius: 30px; font-family: 'Space Mono', monospace; font-size: 14px; cursor: pointer; border: 1px solid #ff0; letter-spacing: 1px; width: 100%;">
+            💡 ASTUCES
+        </button>
+    </div>
+
+    <!-- ZONE ASTUCES -->
+    <div id="astucesBox" style="background: #111; border-left: 4px solid #ff0; padding: 18px; border-radius: 15px; margin-top: 15px; font-family: 'Space Mono', monospace; font-size: 13px; color: #ddd; display: none; text-align: left; line-height: 1.6; border: 1px solid #333;">
+        <p style="margin: 0 0 10px 0; color: #ff0; font-weight: bold; text-align: center;">⚠️ ASTUCE IMPORTANTE ⚠️</p>
+        <p style="margin: 8px 0;">Rehefa rose in-droa mifanaraka na mifanesy,<br>ohatra: nanao prédiction ianao dia nanome heures izy, 07:57:07,<br>dia nisy rose roa nifanesy teo alohany<br><span style="color: #ff0;">→ dia aza miditra fa makà hafa.</span></p>
+        <p style="margin: 8px 0;">Mo raha te ihiditra ianao dia mazakà rafale raha tratrany.</p>
+        <p style="margin: 8px 0; font-style: italic; color: #888;">Jeux de hazard io ka aza mifanome tsiny.</p>
+        <p style="margin: 15px 0 0 0; text-align: right; color: #ff0; font-size: 11px;">🙏 Misaotra</p>
+        <p style="margin: 10px 0 0 0; color: #ff0; font-size: 11px; text-align: center;">⏱️ Heure actuelle: <span id="currentTime">00:00:00</span></p>
+    </div>
+</div>
+
+<script>
+    // FANJAKANA: Histoire
+    let _0x1a = [];
+    
+    // FONCTION CALCUL (obfuscated)
+    function _0x4f5e() {
+        let _0x2b = document.getElementById('tIn').value;
+        let _0x3c = document.getElementById('h1').value;
+        let _0x4d = document.getElementById('hT').value;
+        
+        if (!_0x2b.includes(':') || _0x3c === "" || _0x4d === "") {
+            alert("Veuillez remplir l'heure, le 1er Hex et le Tail Hex");
+            return;
+        }
+        
+        let _0x5e = parseInt(_0x3c, 16);           // val1 (0-15)
+        let _0x6f = parseInt(_0x4d, 16);           // valTail (0-255)
+        
+        if (isNaN(_0x5e) || isNaN(_0x6f)) {
+            alert("Valeurs hexadécimales invalides");
+            return;
+        }
+        
+        // Calcul délai (15-120 secondes)
+        let _0x7g = (_0x5e * 3) + (_0x6f % 45) + 15;
+        
+        let _0x8h = _0x2b.split(':');
+        if (_0x8h.length !== 3) {
+            alert("Format d'heure invalide");
+            return;
+        }
+        
+        let _0x9i = new Date();
+        _0x9i.setHours(parseInt(_0x8h[0]), parseInt(_0x8h[1]), parseInt(_0x8h[2]));
+        _0x9i.setSeconds(_0x9i.getSeconds() + _0x7g);
+        
+        let _0xaj = _0x9i.toLocaleTimeString('fr-FR', { hour12: false });
+        
+        document.getElementById('fTime').innerText = _0xaj;
+        document.getElementById('resBox').style.display = 'block';
+        
+        _0xbl(_0x2b, _0xaj);
+    }
+    
+    function _0xbl(_0xcm, _0xdn) {
+        let _0xeo = { ref: _0xcm, result: _0xdn };
+        _0x1a.unshift(_0xeo);
+        
+        if (_0x1a.length > 10) {
+            _0x1a.pop();
+        }
+        
+        _0xfp();
+    }
+    
+    function _0xfp() {
+        let _0xgq = document.getElementById('historyList');
+        _0xgq.innerHTML = '';
+        
+        _0x1a.forEach(_0xhr => {
+            let _0xis = document.createElement('div');
+            _0xis.className = 'history-item';
+            _0xis.innerHTML = `
+                <span class="hist-ref">${_0xhr.ref}</span>
+                <span class="hist-time">${_0xhr.result}</span>
+            `;
+            _0xgq.appendChild(_0xis);
+        });
+    }
+    
+    // Fonction ASTUCES
+    function _0x2a3b() {
+        let _0yjz = document.getElementById('astucesBox');
+        if (_0yjz.style.display === 'none' || _0yjz.style.display === '') {
+            _0yjz.style.display = 'block';
+            let _0zka = new Date();
+            let _0alb = _0zka.toLocaleTimeString('fr-FR', { hour12: false });
+            document.getElementById('currentTime').innerText = _0alb;
+        } else {
+            _0yjz.style.display = 'none';
+        }
+    }
+    
+    // Mise à jour heure dans astuces
+    setInterval(function() {
+        let _0bmc = document.getElementById('astucesBox');
+        if (_0bmc && _0bmc.style.display === 'block') {
+            let _0cnd = new Date();
+            let _0doe = _0cnd.toLocaleTimeString('fr-FR', { hour12: false });
+            document.getElementById('currentTime').innerText = _0doe;
+        }
+    }, 1000);
+    
+    // Protection supplémentaire contre l'inspection
+    setInterval(function() {
+        if (window.outerHeight - window.innerHeight > 200 || 
+            window.outerWidth - window.innerWidth > 200) {
+            document.body.innerHTML = '<h1 style="color:red;text-align:center;margin-top:50px;">⛔ DÉTECTÉ ⛔</h1>';
+        }
+    }, 1000);
+</script>
+
+<!-- NOSCRIPT: Raha désactivé ny JavaScript -->
+<noscript>
+    <meta http-equiv="refresh" content="0; url=about:blank">
+    <div style="text-align:center;margin-top:50px;color:red;">JavaScript dia tsy maintsy alefa</div>
+</noscript>
+
+</body>
+</html>
